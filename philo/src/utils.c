@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 14:44:26 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/03 14:45:04 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/22 14:01:21 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,4 +39,3 @@ int	ft_atoi(const char *str)
 		r = -r;
 	return (r);
 }
-

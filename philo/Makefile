@@ -6,13 +6,13 @@
 #    By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/16 18:36:14 by macarval          #+#    #+#              #
-#    Updated: 2023/11/06 19:51:54 by macarval         ###   ########.fr        #
+#    Updated: 2023/11/22 16:53:08 by macarval         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME			= philo
 
-FILES			= philo.c life.c make_philo.c time.c utils.c
+FILES			= philo.c create.c life.c threads.c time.c utils.c
 
 FILES_PATH		= src
 OBJS_PATH		= obj

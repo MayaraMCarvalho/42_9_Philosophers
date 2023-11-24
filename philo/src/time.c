@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 09:16:10 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/09 18:17:46 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/23 10:04:34 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,19 +24,18 @@ float	time_diff(struct timeval *start, struct timeval *end)
 	return (time);
 }
 
-void	*init_timer(void* arg)
+void	*init(void *arg)
 {
+	int				j;
+	t_philo			*philo;
 	struct timeval	end;
-	t_philo 	*philo;
 
 	philo = (t_philo *)arg;
-	int i = -1, j = 0;
+	j = 0;
 	while (++j < 6)
 	{
-		while (++i < philo->t_die * 1000)
-			;
 		gettimeofday(&end, NULL);
-		action(time_diff(&philo->start, &end), philo->id, j);
+		action(time_diff(&philo->start, &end), philo, j);
 	}
 	return (NULL);
 }

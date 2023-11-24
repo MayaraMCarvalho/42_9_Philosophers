@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/16 18:27:01 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/09 18:40:24 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/24 08:32:50 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,14 +27,20 @@
 # define THINK 4
 # define DIED 5
 
-typedef struct s_fork
+typedef struct s_watch
 {
-	int				id;
-	int				philo_right; // ?
-	int				philo_left; // ?
-	int				avaliable;
+	pthread_mutex_t	mutex;
+	int				philo_died;
+}	t_watch;
 
-}	t_fork;
+// typedef struct s_fork
+// {
+// 	int				id;
+// 	int				philo_right; // ?
+// 	int				philo_left; // ?
+// 	int				avaliable;
+
+// }	t_fork;
 
 typedef struct s_philo
 {
@@ -44,7 +50,7 @@ typedef struct s_philo
 	int				t_eat;
 	int				t_sleep;
 	struct timeval	start;
-
+	t_watch			*watch;
 }	t_philo;
 
 typedef struct s_table
@@ -55,28 +61,34 @@ typedef struct s_table
 	int				t_eat;
 	int				t_sleep;
 	int				n_times;
-	t_fork 			*forks;
 	t_philo			*philos;
 	struct timeval	start;
+	t_watch			*watcher;
+	pthread_t		*threads;
 }	t_table;
 
 // philo.c
-void		*observer(void *args);
-int			create_thread(t_table *table);
+void		print_error(void);
+int			verify_args(int argc, char *argv[]);
+
+// create.c
+void		create_philo(t_table *table);
 void		create_table(t_table *table, int argc, char *argv[]);
 
 // life.c
-int			action(float time, int philo, int action);
+int			eating(float time, t_philo *philo);
+int			sleeping(float time, t_philo *philo);
+int			thinking(float time, t_philo *philo);
+void		action(float time, t_philo *philo, int action);
 
-// make_philo.c
-void		make_philo(t_table *table);
-void		free_philos(t_philo *list);
-void		insert_last(t_philo **lst, t_philo *new);
-t_philo		*insert_front(t_philo *new, int id, t_table *table);
-
+// threads.c
+void		*observer_threads(void *arg);
+int			manage_threads(t_table *table);
+pthread_t	*create_threads(t_table *table);
+int			join_threads(t_table *table);
 
 // time.c
-void		*init_timer(void* arg);
+void		*init(void *arg);
 float		time_diff(struct timeval *start, struct timeval *end);
 
 // utils.c
