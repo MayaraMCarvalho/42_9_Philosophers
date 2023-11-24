@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 14:44:26 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/22 14:01:21 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/24 11:28:03 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,4 +38,17 @@ int	ft_atoi(const char *str)
 	if (str[s] == 45)
 		r = -r;
 	return (r);
+}
+
+int	is_digit(char *argv)
+{
+	int	i;
+
+	i = -1;
+	while (argv[++i] != '\0')
+	{
+		if (argv[i] < 48 || argv[i] > 57)
+			return (1);
+	}
+	return (0);
 }

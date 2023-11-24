@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/22 16:18:59 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/24 08:57:44 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/24 18:59:50 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,27 +32,20 @@ int	manage_threads(t_table *table)
 
 pthread_t	*create_threads(t_table *table)
 {
-	int				i;
-	int				j;
-	pthread_t		*threads;
+	int			i;
+	pthread_t	*threads;
 
-	j = table->n_times;
+	gettimeofday(&table->start, NULL);
 	threads = (pthread_t *) malloc (table->n_philos * sizeof(pthread_t));
 	if (!threads)
 		return (NULL);
-	while (j != 0)
+	i = -1;
+	while (++i < table->n_philos)
 	{
-		i = -1;
-		while (++i < table->n_philos)
-		{
-			table->philos[i].watch = table->watcher;
-			table->philos[i].start = table->start;
-			if (pthread_create(&threads[i], NULL,
-					&init, &table->philos[i]) != 0)
-				return (NULL);
-		}
-		if (table->n_times > 0)
-				j--;
+		table->philos[i].watch = table->watcher;
+		table->philos[i].start = table->start;
+		table->philos[i].table = table;
+		pthread_create(&threads[i], NULL, &init, &table->philos[i]);
 	}
 	return (threads);
 }
@@ -63,10 +56,7 @@ int	join_threads(t_table *table)
 
 	i = -1;
 	while (++i < table->n_philos)
-	{
-		if (pthread_join(table->threads[i], NULL) != 0)
-			return (i);
-	}
+		pthread_join(table->threads[i], NULL);
 	return (0);
 }
 
@@ -83,7 +73,9 @@ void	*observer_threads(void *arg)
 	// 	{
 	// 		// join_threads(table);
 	// 		// pthread_mutex_unlock(&table->watcher->mutex);
+	//		// free(table.data);
 	// 		// free(table->philos);
+	//		//free(table->forks);
 	// 		// free(table->threads);
 	// 		// free(table->watcher);
 	// 		// exit (1);
