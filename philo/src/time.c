@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 09:16:10 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/24 19:03:43 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/24 19:11:30 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,4 +28,28 @@ void	*init(void *arg)
 	philo = (t_philo *) arg;
 	action(philo);
 	return (NULL);
+}
+
+void	action(t_philo *philo)
+{
+	int		i;
+	t_table	*table;
+
+	table = philo->table;
+	i = table->data->n_times;
+	while (i != 0)
+	{
+		eating(philo, table);
+		sleeping(philo, table);
+		thinking(philo, table);
+		if (1) // tempo acabar
+		{
+			// printf("%li Philosopher %i is died\n", time, philo->id);
+			// pthread_mutex_lock(&philo->watch->mutex);
+			// philo->watch->philo_died = 1;
+			// pthread_mutex_unlock(&philo->watch->mutex);
+		}
+		if (table->data->n_times > 0)
+			i--;
+	}
 }

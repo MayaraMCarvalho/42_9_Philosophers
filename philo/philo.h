@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/16 18:27:01 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/24 19:09:21 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/26 15:59:58 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,6 @@ typedef struct s_table
 	t_watch			*watcher;
 }	t_table;
 
-
-
 // philo.c
 int			only_philo(t_table	*table);
 int			verify_args(int argc, char *argv[]);
@@ -82,8 +80,12 @@ void		create_philo(t_table *table);
 void		create_data(t_table *table, int argc, char *argv[]);
 void		create_table(t_table *table, int argc, char *argv[]);
 
+// forks.c
+void		has_fork(t_philo *philo);
+void		take_forks(t_philo *philo, t_table *table);
+void		return_forks(t_philo *philo, t_table *table, int id_fork);
+
 // life.c
-void		action(t_philo *philo);
 int			eating(t_philo *philo, t_table *table);
 int			sleeping(t_philo *philo, t_table *table);
 int			thinking(t_philo *philo, t_table *table);
@@ -96,6 +98,7 @@ int			join_threads(t_table *table);
 
 // time.c
 void		*init(void *arg);
+void		action(t_philo *philo);
 long int	time_diff(struct timeval *start, struct timeval *end);
 
 // utils.c
