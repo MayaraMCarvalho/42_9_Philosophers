@@ -6,53 +6,67 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/26 15:41:50 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/26 16:18:53 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/27 01:16:26 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../philo.h"
 
-void	take_forks(t_philo *philo, t_table *table)
+int	take_forks(t_philo *philo, t_table *table, int r_fork, int l_fork)
 {
-	int	right_fork;
-	int	left_fork;
-
-	right_fork = philo->id - 1;
-	left_fork = philo->id - 2;
-	if (philo->id == 1)
-		left_fork = table->n_philos - 1;
-	pthread_mutex_lock(&table->forks[right_fork].mutex_fork);
-	if (table->forks[right_fork].avaliable)
+	if (!read_mutex(&table->watcher->philo_died, &table->watcher->mutex)
+		&& !check_dead(philo, table))
 	{
-		table->forks[right_fork].avaliable = 0;
-		has_fork(philo);
-		pthread_mutex_lock(&table->forks[left_fork].mutex_fork);
-		if (table->forks[left_fork].avaliable)
+		if (get_fork(&table->forks[l_fork].avaliable,
+				&table->forks[l_fork].mutex_fork))
 		{
-			table->forks[left_fork].avaliable = 0;
-			has_fork(philo);
-		}
-		else
-		{
-			pthread_mutex_unlock(&table->forks[left_fork].mutex_fork);
-			return_forks(philo, table, right_fork);
+			print_life(philo, "has a taken a fork", 0);
+			if (get_fork(&table->forks[r_fork].avaliable,
+					&table->forks[r_fork].mutex_fork))
+			{
+				print_life(philo, "has a taken a fork", 0);
+				return (1);
+			}
+			else
+				write_mutex(&table->forks[l_fork].avaliable,
+					&table->forks[l_fork].mutex_fork, 1);
 		}
 	}
+	return (0);
 }
 
-void	has_fork(t_philo *philo)
+int	get_fork(int *var, pthread_mutex_t *mutex)
 {
-	struct timeval	end;
+	int	control;
 
-	philo->hand_forks++;
-	gettimeofday(&end, NULL);
-	// printf("%li %i has a taken a fork\n",
-	// 	time_diff(&philo->start, &end), philo->id);
+	control = 0;
+	pthread_mutex_lock(mutex);
+	if (*var)
+	{
+		*var = 0;
+		control = 1;
+	}
+	pthread_mutex_unlock(mutex);
+	return (control);
 }
 
-void	return_forks(t_philo *philo, t_table *table, int id_fork)
+void	return_forks(t_table *table, int r_fork, int l_fork)
 {
-	philo->hand_forks--;
-	table->forks[id_fork].avaliable = 1;
-	pthread_mutex_unlock(&table->forks[id_fork].mutex_fork);
+	write_mutex(&table->forks[l_fork].avaliable,
+		&table->forks[l_fork].mutex_fork, 1);
+	write_mutex(&table->forks[r_fork].avaliable,
+		&table->forks[r_fork].mutex_fork, 1);
+}
+
+int	check_dead(t_philo *philo, t_table *table)
+{
+	if (get_now(&table->start) - philo->last_eat >= table->data->t_die)
+	{
+		pthread_mutex_lock(&((t_table *)philo->table)->mutex_print);
+		write_mutex(&table->watcher->philo_died,
+			&table->watcher->mutex, philo->id);
+		pthread_mutex_unlock(&((t_table *)philo->table)->mutex_print);
+		return (1);
+	}
+	return (0);
 }

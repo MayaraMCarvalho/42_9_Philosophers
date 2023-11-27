@@ -6,48 +6,75 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 11:53:42 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/26 16:17:48 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/27 01:00:33 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../philo.h"
 
-int	eating(t_philo *philo, t_table *table)
+void	action(t_philo *philo)
 {
-	struct timeval	end;
+	t_table			*table;
 
-	take_forks(philo, table);
-	if (philo->hand_forks == 2)
+	table = philo->table;
+	while (!read_mutex(&table->watcher->philo_died, &table->watcher->mutex)
+		&& philo->n_times_eat != 0)
 	{
-		gettimeofday(&end, NULL);
-		printf("%li %i is eating\n", time_diff(&philo->start, &end), philo->id);
-		usleep(table->data->t_eat * 1000);
-		return_forks(philo, table, philo->id - 1);
-		if (philo->id == 1)
-			return_forks(philo, table, table->n_philos - 1);
-		else
-			return_forks(philo, table, philo->id - 2);
+		if (philo->id % 2 == 0)
+			usleep(1500);
+		eating(philo, table);
+		sleeping(philo, table);
+		if (!read_mutex(&table->watcher->philo_died, &table->watcher->mutex))
+		{
+			print_life(philo, "is thinking", 0);
+			usleep(1000);
+		}
+		check_dead(philo, table);
 	}
-	return (0);
 }
 
-int	sleeping(t_philo *philo, t_table *table)
+void	eating(t_philo *philo, t_table *table)
 {
-	struct timeval	end;
+	int				right_fork;
+	int				left_fork;
 
-	gettimeofday(&end, NULL);
-	printf("%li %i is sleeping\n", time_diff(&philo->start, &end), philo->id);
-	usleep(table->data->t_sleep * 1000);
-	return (0);
+	right_fork = philo->id - 1;
+	left_fork = philo->id - 2;
+	if (philo->id == 1)
+		left_fork = table->n_philos - 1;
+	if (!check_dead(philo, table)
+		&& !read_mutex(&table->watcher->philo_died, &table->watcher->mutex)
+		&& take_forks(philo, table, right_fork, left_fork))
+	{
+		print_life(philo, "is eating", 1);
+		if (philo->n_times_eat > 0)
+			philo->n_times_eat--;
+		usleep(table->data->t_eat * 1000);
+		return_forks(table, right_fork, left_fork);
+	}
+	check_dead(philo, table);
 }
 
-int	thinking(t_philo *philo, t_table *table)
+void	sleeping(t_philo *philo, t_table *table)
+{
+	if (!read_mutex(&table->watcher->philo_died, &table->watcher->mutex))
+	{
+		print_life(philo, "is sleeping", 0);
+		usleep(table->data->t_sleep * 1000);
+	}
+	check_dead(philo, table);
+}
+
+void	print_life(t_philo *philo, char	*msg, int is_eat)
 {
 	struct timeval	end;
+	long int		time;
 
 	gettimeofday(&end, NULL);
-	printf("%li %i is thinking\n", time_diff(&philo->start, &end), philo->id);
-	// Ficar aqui até conseguir um garfo para comer take_fork()
-	usleep(table->data->t_eat * 1000); // Substitui por while(take_fork)
-	return (0);
+	time = time_diff(&((t_table *)philo->table)->start, &end);
+	pthread_mutex_lock(&((t_table *)philo->table)->mutex_print);
+	printf("%li %i %s\n", time, philo->id, msg);
+	pthread_mutex_unlock(&((t_table *)philo->table)->mutex_print);
+	if (is_eat)
+		philo->last_eat = time;
 }

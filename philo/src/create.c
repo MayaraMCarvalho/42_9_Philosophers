@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 15:37:31 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/24 19:03:25 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/27 00:37:01 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ void	create_table(t_table *table, int argc, char *argv[])
 		return ;
 	table->watcher->philo_died = 0;
 	gettimeofday(&table->start, NULL);
+	pthread_mutex_init(&table->mutex_print, NULL);
+	pthread_mutex_init(&table->watcher->mutex, NULL);
 }
 
 void	create_forks(t_table *table)
@@ -63,8 +65,7 @@ void	create_philo(t_table *table)
 	while (++i < table->n_philos)
 	{
 		table->philos[i].id = i + 1;
-		table->philos[i].hand_forks = 0;
-		table->philos[i].start = table->start;
-		// table->philos[i].last_eat = ;
+		table->philos[i].last_eat = 0;
+		table->philos[i].n_times_eat = table->data->n_times;
 	}
 }

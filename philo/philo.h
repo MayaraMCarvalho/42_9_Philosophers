@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/16 18:27:01 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/26 15:59:58 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/27 01:16:38 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,6 @@
 # include <pthread.h>
 # include <sys/time.h>
 # include <time.h>
-
-// # define TAKEN 1
-// # define EAT 2
-// # define SLEEP 3
-// # define THINK 4
-// # define DIED 5
 
 typedef struct s_watch
 {
@@ -43,19 +37,17 @@ typedef struct s_fork
 
 typedef struct s_data
 {
-	int				t_die;
-	int				t_eat;
-	int				t_sleep;
+	long int		t_die;
+	long int		t_eat;
+	long int		t_sleep;
 	int				n_times;
 }	t_data;
 
 typedef struct s_philo
 {
 	int				id;
-	int				hand_forks;
-	int				last_eat;
-	struct timeval	start;
-	t_watch			*watch;
+	long int		last_eat;
+	int				n_times_eat;
 	void			*table;
 }	t_philo;
 
@@ -68,9 +60,11 @@ typedef struct s_table
 	t_philo			*philos;
 	pthread_t		*threads;
 	t_watch			*watcher;
+	pthread_mutex_t	mutex_print;
 }	t_table;
 
 // philo.c
+void		free_table(t_table *table);
 int			only_philo(t_table	*table);
 int			verify_args(int argc, char *argv[]);
 
@@ -81,16 +75,19 @@ void		create_data(t_table *table, int argc, char *argv[]);
 void		create_table(t_table *table, int argc, char *argv[]);
 
 // forks.c
-void		has_fork(t_philo *philo);
-void		take_forks(t_philo *philo, t_table *table);
-void		return_forks(t_philo *philo, t_table *table, int id_fork);
+int			check_dead(t_philo *philo, t_table *table);
+int			get_fork(int *var, pthread_mutex_t *mutex);
+void		return_forks(t_table *table, int r_fork, int l_fork);
+int			take_forks(t_philo *philo, t_table *table, int r_fork, int l_fork);
 
 // life.c
-int			eating(t_philo *philo, t_table *table);
-int			sleeping(t_philo *philo, t_table *table);
-int			thinking(t_philo *philo, t_table *table);
+void		action(t_philo *philo);
+void		eating(t_philo *philo, t_table *table);
+void		sleeping(t_philo *philo, t_table *table);
+void		print_life(t_philo *philo, char *msg, int is_eat);
 
 // threads.c
+int			final_eat(t_table *table);
 void		*observer_threads(void *arg);
 int			manage_threads(t_table *table);
 pthread_t	*create_threads(t_table *table);
@@ -98,8 +95,10 @@ int			join_threads(t_table *table);
 
 // time.c
 void		*init(void *arg);
-void		action(t_philo *philo);
+long int	get_now(struct timeval *start);
+int			read_mutex(int	*var, pthread_mutex_t *mutex);
 long int	time_diff(struct timeval *start, struct timeval *end);
+void		write_mutex(int *var, pthread_mutex_t *mutex, int value);
 
 // utils.c
 int			is_digit(char *argv);

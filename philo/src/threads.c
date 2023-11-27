@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/22 16:18:59 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/24 18:59:50 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/27 00:51:05 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@ int	manage_threads(t_table *table)
 {
 	pthread_t	observer;
 
-	pthread_mutex_init(&table->watcher->mutex, NULL);
 	table->threads = create_threads(table);
 	if (!table->threads)
 		return (1);
@@ -25,8 +24,6 @@ int	manage_threads(t_table *table)
 	if (pthread_join(observer, NULL) != 0)
 		return (3);
 	join_threads(table);
-	pthread_mutex_destroy(&table->watcher->mutex);
-	free(table->threads);
 	return (0);
 }
 
@@ -42,8 +39,6 @@ pthread_t	*create_threads(t_table *table)
 	i = -1;
 	while (++i < table->n_philos)
 	{
-		table->philos[i].watch = table->watcher;
-		table->philos[i].start = table->start;
 		table->philos[i].table = table;
 		pthread_create(&threads[i], NULL, &init, &table->philos[i]);
 	}
@@ -57,6 +52,7 @@ int	join_threads(t_table *table)
 	i = -1;
 	while (++i < table->n_philos)
 		pthread_join(table->threads[i], NULL);
+	free(table->threads);
 	return (0);
 }
 
@@ -65,23 +61,30 @@ void	*observer_threads(void *arg)
 	t_table		*table;
 
 	table = *(t_table **)arg;
-	if(table) {}//
-	// while (1)
-	// {
-	// 	pthread_mutex_lock(&table->watcher->mutex);
-	// 	if (table->watcher->philo_died)
-	// 	{
-	// 		// join_threads(table);
-	// 		// pthread_mutex_unlock(&table->watcher->mutex);
-	//		// free(table.data);
-	// 		// free(table->philos);
-	//		//free(table->forks);
-	// 		// free(table->threads);
-	// 		// free(table->watcher);
-	// 		// exit (1);
-	// 	}
-	// 	pthread_mutex_unlock(&table->watcher->mutex);
-	// 	usleep(10 * 1000);
-	// }
+	while (1)
+	{
+		if (read_mutex(&table->watcher->philo_died, &table->watcher->mutex))
+		{
+			print_life(&table->philos[table->watcher->philo_died - 1],
+				"died", 0);
+			return ((void *) 1);
+		}
+		usleep(10 * 1000);
+		if (final_eat(table))
+			return (NULL);
+	}
 	return (NULL);
+}
+
+int	final_eat(t_table *table)
+{
+	int	i;
+
+	i = -1;
+	while (++i < table->n_philos)
+	{
+		if (table->philos[i].n_times_eat)
+			return (0);
+	}
+	return (1);
 }

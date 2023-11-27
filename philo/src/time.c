@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 09:16:10 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/24 19:11:30 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/27 00:30:42 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,16 @@ long int	time_diff(struct timeval *start, struct timeval *end)
 	return (time);
 }
 
+long int	get_now(struct timeval *start)
+{
+	struct timeval	end;
+	long int		time;
+
+	gettimeofday(&end, NULL);
+	time = time_diff(start, &end);
+	return (time);
+}
+
 void	*init(void *arg)
 {
 	t_philo	*philo;
@@ -30,26 +40,19 @@ void	*init(void *arg)
 	return (NULL);
 }
 
-void	action(t_philo *philo)
+int	read_mutex(int	*var, pthread_mutex_t *mutex)
 {
-	int		i;
-	t_table	*table;
+	int	res;
 
-	table = philo->table;
-	i = table->data->n_times;
-	while (i != 0)
-	{
-		eating(philo, table);
-		sleeping(philo, table);
-		thinking(philo, table);
-		if (1) // tempo acabar
-		{
-			// printf("%li Philosopher %i is died\n", time, philo->id);
-			// pthread_mutex_lock(&philo->watch->mutex);
-			// philo->watch->philo_died = 1;
-			// pthread_mutex_unlock(&philo->watch->mutex);
-		}
-		if (table->data->n_times > 0)
-			i--;
-	}
+	pthread_mutex_lock(mutex);
+	res = *var;
+	pthread_mutex_unlock(mutex);
+	return (res);
+}
+
+void	write_mutex(int *var, pthread_mutex_t *mutex, int value)
+{
+	pthread_mutex_lock(mutex);
+	*var = value;
+	pthread_mutex_unlock(mutex);
 }
