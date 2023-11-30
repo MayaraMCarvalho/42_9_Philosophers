@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 11:53:42 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/30 09:31:15 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/30 11:17:20 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@ void	*action(void *arg)
 {
 	t_philo	*philo;
 	t_table	*table;
-
 
 	philo = (t_philo *) arg;
 	table = philo->table;
@@ -44,15 +43,21 @@ void	eating(t_philo *philo, t_table *table)
 		&& !read_mutex(&table->watcher->philo_died, &table->watcher->mutex))
 	{
 		while (!take_forks(philo, table, right_fork, left_fork))
-			;
-		print_life(philo, MSG_EAT, 1);
-		pthread_mutex_lock(&philo->mutex_eat);
-		philo->n_times_eat--;
-		pthread_mutex_unlock(&philo->mutex_eat);
-		usleep(table->data->t_eat * 1000);
+		{
+			usleep(1);
+			if (check_dead(philo, table))
+				break ;
+		}
+		if (!check_dead(philo, table))
+		{
+			print_life(philo, MSG_EAT, 1);
+			pthread_mutex_lock(&philo->mutex_eat);
+			philo->n_times_eat--;
+			pthread_mutex_unlock(&philo->mutex_eat);
+			usleep(table->data->t_eat * 1000);
+		}
 		return_forks(table, right_fork, left_fork);
 	}
-	check_dead(philo, table);
 }
 
 void	sleeping(t_philo *philo, t_table *table)
