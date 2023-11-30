@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 15:37:31 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/27 00:37:01 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/27 10:28:07 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,8 @@ void	create_philo(t_table *table)
 	{
 		table->philos[i].id = i + 1;
 		table->philos[i].last_eat = 0;
+		table->philos[i].forks_hands = 0;
 		table->philos[i].n_times_eat = table->data->n_times;
+		pthread_mutex_init(&table->philos[i].mutex_eat, NULL);
 	}
 }

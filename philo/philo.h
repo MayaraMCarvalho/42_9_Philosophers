@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/16 18:27:01 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/27 01:16:38 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/30 09:21:17 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,11 @@
 # include <pthread.h>
 # include <sys/time.h>
 # include <time.h>
+
+# define MSG_THINK "is thinking"
+# define MSG_EAT "is eating"
+# define MSG_SLEEP "is sleeping"
+# define MSG_FORK "has a taken a fork"
 
 typedef struct s_watch
 {
@@ -46,9 +51,11 @@ typedef struct s_data
 typedef struct s_philo
 {
 	int				id;
+	int				forks_hands;
 	long int		last_eat;
 	int				n_times_eat;
 	void			*table;
+	pthread_mutex_t	mutex_eat;
 }	t_philo;
 
 typedef struct s_table
@@ -76,14 +83,16 @@ void		create_table(t_table *table, int argc, char *argv[]);
 
 // forks.c
 int			check_dead(t_philo *philo, t_table *table);
-int			get_fork(int *var, pthread_mutex_t *mutex);
+int			get_fork(t_table *table, int r_fork, int l_fork);
 void		return_forks(t_table *table, int r_fork, int l_fork);
+void		define_id_forks(t_philo *philo, int *right_fork, int *left_fork);
 int			take_forks(t_philo *philo, t_table *table, int r_fork, int l_fork);
 
 // life.c
-void		action(t_philo *philo);
+void		*action(void *arg);
 void		eating(t_philo *philo, t_table *table);
 void		sleeping(t_philo *philo, t_table *table);
+void		thinking(t_philo *philo, t_table *table);
 void		print_life(t_philo *philo, char *msg, int is_eat);
 
 // threads.c
@@ -94,7 +103,6 @@ pthread_t	*create_threads(t_table *table);
 int			join_threads(t_table *table);
 
 // time.c
-void		*init(void *arg);
 long int	get_now(struct timeval *start);
 int			read_mutex(int	*var, pthread_mutex_t *mutex);
 long int	time_diff(struct timeval *start, struct timeval *end);

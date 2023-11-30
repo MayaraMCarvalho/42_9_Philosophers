@@ -6,16 +6,19 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 11:53:42 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/27 01:00:33 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/30 09:31:15 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../philo.h"
 
-void	action(t_philo *philo)
+void	*action(void *arg)
 {
-	t_table			*table;
+	t_philo	*philo;
+	t_table	*table;
 
+
+	philo = (t_philo *) arg;
 	table = philo->table;
 	while (!read_mutex(&table->watcher->philo_died, &table->watcher->mutex)
 		&& philo->n_times_eat != 0)
@@ -24,31 +27,28 @@ void	action(t_philo *philo)
 			usleep(1500);
 		eating(philo, table);
 		sleeping(philo, table);
-		if (!read_mutex(&table->watcher->philo_died, &table->watcher->mutex))
-		{
-			print_life(philo, "is thinking", 0);
-			usleep(1000);
-		}
-		check_dead(philo, table);
+		thinking(philo, table);
+		if (check_dead(philo, table))
+			break ;
 	}
+	return (NULL);
 }
 
 void	eating(t_philo *philo, t_table *table)
 {
-	int				right_fork;
-	int				left_fork;
+	int	right_fork;
+	int	left_fork;
 
-	right_fork = philo->id - 1;
-	left_fork = philo->id - 2;
-	if (philo->id == 1)
-		left_fork = table->n_philos - 1;
+	define_id_forks(philo, &right_fork, &left_fork);
 	if (!check_dead(philo, table)
-		&& !read_mutex(&table->watcher->philo_died, &table->watcher->mutex)
-		&& take_forks(philo, table, right_fork, left_fork))
+		&& !read_mutex(&table->watcher->philo_died, &table->watcher->mutex))
 	{
-		print_life(philo, "is eating", 1);
-		if (philo->n_times_eat > 0)
-			philo->n_times_eat--;
+		while (!take_forks(philo, table, right_fork, left_fork))
+			;
+		print_life(philo, MSG_EAT, 1);
+		pthread_mutex_lock(&philo->mutex_eat);
+		philo->n_times_eat--;
+		pthread_mutex_unlock(&philo->mutex_eat);
 		usleep(table->data->t_eat * 1000);
 		return_forks(table, right_fork, left_fork);
 	}
@@ -59,10 +59,19 @@ void	sleeping(t_philo *philo, t_table *table)
 {
 	if (!read_mutex(&table->watcher->philo_died, &table->watcher->mutex))
 	{
-		print_life(philo, "is sleeping", 0);
+		print_life(philo, MSG_SLEEP, 0);
 		usleep(table->data->t_sleep * 1000);
 	}
 	check_dead(philo, table);
+}
+
+void	thinking(t_philo *philo, t_table *table)
+{
+	if (!read_mutex(&table->watcher->philo_died, &table->watcher->mutex))
+	{
+		print_life(philo, MSG_THINK, 0);
+		usleep(1000);
+	}
 }
 
 void	print_life(t_philo *philo, char	*msg, int is_eat)

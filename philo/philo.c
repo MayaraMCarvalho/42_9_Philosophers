@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/16 18:23:28 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/27 00:50:31 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/27 09:16:12 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,10 @@ void	free_table(t_table *table)
 
 	i = -1;
 	while (++i < table->n_philos)
+	{
 		pthread_mutex_destroy(&table->forks[i].mutex_fork);
+		pthread_mutex_destroy(&table->philos[i].mutex_eat);
+	}
 	pthread_mutex_destroy(&table->mutex_print);
 	pthread_mutex_destroy(&table->watcher->mutex);
 	free(table->data);

@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 09:16:10 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/27 00:30:42 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/30 09:00:46 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,15 +29,6 @@ long int	get_now(struct timeval *start)
 	gettimeofday(&end, NULL);
 	time = time_diff(start, &end);
 	return (time);
-}
-
-void	*init(void *arg)
-{
-	t_philo	*philo;
-
-	philo = (t_philo *) arg;
-	action(philo);
-	return (NULL);
 }
 
 int	read_mutex(int	*var, pthread_mutex_t *mutex)

@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/22 16:18:59 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/27 00:51:05 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/30 09:00:59 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ pthread_t	*create_threads(t_table *table)
 	while (++i < table->n_philos)
 	{
 		table->philos[i].table = table;
-		pthread_create(&threads[i], NULL, &init, &table->philos[i]);
+		pthread_create(&threads[i], NULL, &action, &table->philos[i]);
 	}
 	return (threads);
 }
@@ -79,12 +79,16 @@ void	*observer_threads(void *arg)
 int	final_eat(t_table *table)
 {
 	int	i;
+	int	control;
 
 	i = -1;
-	while (++i < table->n_philos)
+	control = 1;
+	while (++i < table->n_philos && control)
 	{
+		pthread_mutex_lock(&table->philos[i].mutex_eat);
 		if (table->philos[i].n_times_eat)
-			return (0);
+			control = 0;
+		pthread_mutex_unlock(&table->philos[i].mutex_eat);
 	}
-	return (1);
+	return (control);
 }
