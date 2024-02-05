@@ -6,7 +6,7 @@
 /*   By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 11:53:42 by macarval          #+#    #+#             */
-/*   Updated: 2023/11/30 11:17:20 by macarval         ###   ########.fr       */
+/*   Updated: 2023/11/30 11:37:28 by macarval         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ void	*action(void *arg)
 		&& philo->n_times_eat != 0)
 	{
 		if (philo->id % 2 == 0)
-			usleep(1500);
+			usleep(1000);
 		eating(philo, table);
 		sleeping(philo, table);
 		thinking(philo, table);
