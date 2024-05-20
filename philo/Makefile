@@ -6,18 +6,18 @@
 #    By: macarval <macarval@student.42sp.org.br>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/16 18:36:14 by macarval          #+#    #+#              #
-#    Updated: 2023/11/26 16:00:33 by macarval         ###   ########.fr        #
+#    Updated: 2024/03/20 14:30:13 by macarval         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME			= philo
 
 FILES			= philo.c create.c forks.c life.c threads.c time.c utils.c \
-				
 
-FILES_PATH		= src
+
+# FILES_PATH		= src
 OBJS_PATH		= obj
-VPATH			= src/
+# VPATH			= src/
 HEADERS			= philo.h
 CFLAGS			= -g3 -Wall -Wextra -Werror -pthread -lpthread
 CC				= cc
